@@ -208,12 +208,21 @@ void turn90Left(){
   long timeStart = millis();
 
   while ((millis() - timeStart) < 250){
-    pravyMotorVpred(maxRychlost);
-    levyMotorVzad(maxRychlost);         
+    pravyMotorVpred(150);
+    levyMotorVzad(150);         
   }
 
-
+  while (RGBLineFollower.getPositionState() != 0b1001){
+    pravyMotorVpred(100);
+    levyMotorVzad(100);  
+    if (RGBLineFollower.getPositionState()== 0b1001){
+      pravyMotorVpred(0);
+    levyMotorVzad(0);   
+      break;
+    }  
+  }
 }
+
 
 void turn90Right(){
   long timeStart = millis();
@@ -228,6 +237,8 @@ void turn90Right(){
     levyMotorVpred(minRychlost);
     pravyMotorVzad(minRychlost);    
     if (RGBLineFollower.getPositionState()== 0b1001){
+      levyMotorVpred(0);
+      pravyMotorVzad(0);    
       break;
     }  
   }

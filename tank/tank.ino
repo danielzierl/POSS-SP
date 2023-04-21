@@ -174,33 +174,39 @@ void loop() {
   lineOffset = RGBLineFollower.getPositionOffset();
 
   printData(linState, lineOffset);
-//  onMiddleTwo();
-//  onOneDeviation();
-//  onNothing();
-  onCross();
+
+  switch (linState) {
+    case 0b1001:
+      onMiddleTwo();
+      break;
+    case 0b1101:
+      regulateRight();
+      break;
+    case 0b1011:
+      regulateLeft();
+      break;
+    case 0b0000:
+      onCross();
+      break;
+    case 0b0001:
+      onCross();
+      break;
+
+  }
+
+  //onCross();
   
 
 
-
-
-
-  
   
 }
+
 void onCross(){
-    if (linState == all || linState == leftActive || flag_turning_left ){
-//    pravyMotorVpred(aboveNormalSpeed);
-//    levyMotorVzad(aboveNormalSpeed);
-//      runCrossIntersectionScan();
-      turnLeft();
-  }
-  if(linState == rightActive || flag_turning_right){
-      turnRight();
-    }
+  turn90Left();
+  delay(500);
 }
 
 void onMiddleTwo(){
-  if (linState == midTwo){
     if (flag_forw){
       pravyMotorVpred(normalSpeed);
       levyMotorVpred(normalSpeed);
@@ -208,7 +214,6 @@ void onMiddleTwo(){
       pravyMotorVzad(normalSpeed);
       levyMotorVzad(normalSpeed);      
     }
-  }
  }
 
 void onOneDeviation(){
@@ -221,9 +226,7 @@ void onOneDeviation(){
   }
 }
 void onNothing(){
-  if (linState == nothing){
     driveForward(0);
-  }
 }
 
 
@@ -245,6 +248,59 @@ void printData(int linState, int lineOffset){
   Serial.print("\tLineOffset: ");
   Serial.println(lineOffset);
 }
+
+const long TURN_90_TIME = 250;
+void turn90Left(){
+  long timeStart = millis();
+  while ((millis() - timeStart) < 100){
+      pravyMotorVpred(minRychlost);
+      levyMotorVpred(minRychlost);         
+    }
+
+  timeStart = millis();
+
+  while ((millis() - timeStart) < 250){
+    pravyMotorVpred(maxRychlost);
+    levyMotorVzad(maxRychlost);         
+  }
+  RGBLineFollower.loop();
+  while (RGBLineFollower.getPositionState() != 0b1001){
+    RGBLineFollower.loop();
+    pravyMotorVpred(100);
+    levyMotorVzad(100);  
+  }
+}
+
+
+int turnLeft(){
+  flag_turning_left=true;
+  int starttime = millis();
+  while ((millis() - starttime) <=turnTimeTimeMillis){
+    driveLeft(scanningSpeed);
+    checkForMidTwo();
+   
+  }
+  flag_turning_left=false;
+  driveForward(0);
+ }
+int turnRight(){
+  int starttime = millis();
+  flag_turning_right=true;
+  while ((millis() - starttime) <=turnTimeTimeMillis){
+    driveRight(scanningSpeed);
+    checkForMidTwo();
+  }
+  flag_turning_right=false;
+  driveForward(0);
+ }
+bool checkForMidTwo(){
+  if(linState==midTwo){
+    flag_turning_right=false;
+    flag_turning_left=false;
+    }
+  }
+
+
 void driveForward(int speed){
   pravyMotorVpred(speed);
   levyMotorVpred(speed);
@@ -311,31 +367,3 @@ void pravyMotorStop() {
 //      driveBackward(scanningSpeed);
 //    }
 //}
-
-int turnLeft(){
-  flag_turning_left=true;
-  int starttime = millis();
-  while ((millis() - starttime) <=turnTimeTimeMillis){
-    driveLeft(scanningSpeed);
-    checkForMidTwo();
-   
-  }
-  flag_turning_left=false;
-  driveForward(0);
- }
-int turnRight(){
-  int starttime = millis();
-  flag_turning_right=true;
-  while ((millis() - starttime) <=turnTimeTimeMillis){
-    driveRight(scanningSpeed);
-    checkForMidTwo();
-  }
-  flag_turning_right=false;
-  driveForward(0);
- }
-void checkForMidTwo(){
-  if(linState==midTwo){
-    flag_turning_right=false;
-    flag_turning_left=false;
-    }
-  }
