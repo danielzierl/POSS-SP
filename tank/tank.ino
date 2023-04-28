@@ -16,8 +16,9 @@ const int pwmMotorLevy = 10;
 const int inMotorLevy1 = 47;
 const int inMotorLevy2 = 46;
 
-int normalSpeed = 100;
-int aboveNormalSpeed = 130;
+int normalSpeed = 150;
+int aboveNormalSpeed = 180;
+int rotationSpeed = 200;
 int scanningSpeed = 100;
 int minRychlost = 100;
 int maxRychlost = 255;
@@ -158,7 +159,7 @@ void setup() {
     // nepokracuj dokud neni stiknut levy naraznik
   }
 }
-
+int cachedStatesNum = 5;
 bool flag_forw = true;
 bool flag_turning_left =false;
 bool flag_turning_right =false;
@@ -171,39 +172,79 @@ int leftActive = 0b0001;
 int rightActive = 0b1000;
 int linState;
 int lineOffset;
+int stateCache[8] = {} ;
+long loopCounter = 0;
+
+int recognition(int linState){
+  stateCache[loopCounter%8] = linState;
+  return findMostCommonByte(stateCache, 8);
+}
+
+int findMostCommonByte(int arr[], int arrLen) {
+  int mostCommonByte = arr[0]; // Assume the first byte is the most common
+  int highestFrequency = 1; // Assume the frequency of the most common byte is 1
+
+  for (int i = 0; i < arrLen; i++) {
+    int currentFrequency = 1; // Start with a frequency of 1 for the current byte
+    for (int j = i+1; j < arrLen; j++) {
+      if (arr[i] == arr[j]) {
+        currentFrequency++; // Increment the frequency for each matching byte
+      }
+    }
+    if (currentFrequency > highestFrequency) {
+      highestFrequency = currentFrequency;
+      mostCommonByte = arr[i];
+    }
+  }
+
+  return mostCommonByte;
+}
+
+
 void loop() {
   // sejmutí dat z detektoru cary
   RGBLineFollower.loop();
 
-  delay(10);
 
   linState = RGBLineFollower.getPositionState();
   lineOffset = RGBLineFollower.getPositionOffset();
 
-  printData(linState, lineOffset);
+  int most_common_state = recognition(linState);
+  printData(linState, lineOffset, most_common_state);
+
+
 
   switch (linState) {
     case 0b1001:
       onMiddleTwo();
       break;
-    case 0b1101:
-      regulateRight();
-      break;
-    case 0b1011:
-      regulateLeft();
-      break;
     case 0b0000:
       onCross();
       break;
+    case 0b1000:
+      turn90Left();
+      break;
+    
     case 0b0001:
-      onCross();
+      turn90Right();
+      break;
+
+    case 0b1011:
+      regulateRight();
+      break;
+    case 0b1101:
+      regulateLeft();
+      break;
+
+    case 0b1111:
+      driveForward(0);
       break;
 
   }
 
   
   if (Bluetooth.available()){ //wait for data received
-    Data=Bluetooth.read();
+    int Data = Bluetooth.read();
     // if(Data=='1'){  
     //   Serial.println("LED On!");
     //   Bluetooth.println("LED On!");
@@ -216,12 +257,11 @@ void loop() {
   }
 
 
-  
+  loopCounter++;
 }
 
 void onCross(){
   turn90Left();
-  delay(500);
 }
 
 void onMiddleTwo(){
@@ -236,11 +276,11 @@ void onMiddleTwo(){
 
 void onOneDeviation(){
     if (linState == rightFirst){
-      regulateLeft();
+      regulateRight();
   }
 
   if (linState == leftFirst){
-    regulateRight();
+    regulateLeft();
   }
 }
 void onNothing(){
@@ -258,34 +298,68 @@ void levyEncoderAInt() {
 
 
 
-void printData(int linState, int lineOffset){
+void printData(int linState, int lineOffset, int most_common_state){
 
   Serial.print(0b1111 & linState == true);
   Serial.print("LinState: ");
   Serial.print(linState, BIN);
+  Serial.print("\tMost common state: ");
+  Serial.print(most_common_state, BIN);
+
   Serial.print("\tLineOffset: ");
   Serial.println(lineOffset);
 }
 
 const long TURN_90_TIME = 250;
+
 void turn90Left(){
   long timeStart = millis();
-  while ((millis() - timeStart) < 100){
+  while ((millis() - timeStart) < 150){
       pravyMotorVpred(minRychlost);
       levyMotorVpred(minRychlost);         
     }
 
   timeStart = millis();
 
-  while ((millis() - timeStart) < 250){
-    pravyMotorVpred(maxRychlost);
-    levyMotorVzad(maxRychlost);         
+  while ((millis() - timeStart) < 320){
+    pravyMotorVpred(rotationSpeed);
+    levyMotorVzad(rotationSpeed);         
   }
+
+  timeStart = millis();
   RGBLineFollower.loop();
   while (RGBLineFollower.getPositionState() != 0b1001){
     RGBLineFollower.loop();
-    pravyMotorVpred(100);
-    levyMotorVzad(100);  
+    pravyMotorVpred(minRychlost);
+    levyMotorVzad(minRychlost);  
+    if((millis() - timeStart) > 1000){
+      break;
+    }
+  }
+}
+
+void turn90Right(){
+  long timeStart = millis();
+  while ((millis() - timeStart) < 150){
+      pravyMotorVpred(minRychlost);
+      levyMotorVpred(minRychlost);         
+    }
+
+  timeStart = millis();
+  while ((millis() - timeStart) < 320){
+    levyMotorVpred(rotationSpeed);
+    pravyMotorVzad(rotationSpeed);         
+  }
+
+  timeStart = millis();
+  RGBLineFollower.loop();
+  while (RGBLineFollower.getPositionState() != 0b1001){
+    RGBLineFollower.loop();
+    levyMotorVpred(minRychlost);
+    pravyMotorVzad(minRychlost);  
+    if((millis() - timeStart) > 1000){
+      break;
+    }
   }
 }
 
@@ -336,12 +410,12 @@ void driveRight(int speed){
   pravyMotorVzad(speed);
   }
 void regulateLeft(){
-  pravyMotorVpred(aboveNormalSpeed);
-   levyMotorVpred(normalSpeed);
+  pravyMotorVpred(100);
+   levyMotorVpred(0);
 }
 void regulateRight(){
-  pravyMotorVpred(normalSpeed);
-   levyMotorVpred(aboveNormalSpeed);
+  pravyMotorVpred(0);
+   levyMotorVpred(100);
 }
 
 void levyMotorVpred(int rychlost) {
