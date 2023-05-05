@@ -291,9 +291,7 @@ void loop() {
         changeDir('F');
       }
 
-      driveForward(110);
-      //levyMotorVpred(110);   //80 víc ne
-      //pravyMotorVpred(110);  //80
+      driveForward(110); //80
       x = 0;
       otocka = 0;
     } else if (LL > sensor_threshold && L > sensor_threshold && R > sensor_threshold && RR > sensor_threshold && x == 0 && vpravo == 0 && otocka == 0) {  //fake
@@ -497,12 +495,9 @@ void stop() {
 }
 
 void L90(int LL, int L, int R, int RR) {
-  driveLeft(150);
-  //levyMotorVzad(150);    //150 //140
-  //pravyMotorVpred(150);  //150
+  driveLeft(150); //150
   unsigned long pockej = millis();
-  while (millis() - pockej < 250) {  //200
-    //misto delaye
+  while (millis() - pockej < 250) {//delay
   }
   while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
     RGBLineFollower.loop();
@@ -587,12 +582,8 @@ void R180() {
   stop();
   delay(500);
   driveBackward(80);
-  levyMotorVzad(80);
-  pravyMotorVzad(80);
   delay(600);
   driveRight(127);
-  //levyMotorVpred(127);
-  //pravyMotorVzad(127);
   delay(1400);  //1400
   stop();
 }
