@@ -18,11 +18,12 @@ const int inMotorLevy2 = 46;
 
 int normalSpeed = 150;
 int aboveNormalSpeed = 180;
+int rs = 100;
 int rotationSpeed = 200;
 int scanningSpeed = 100;
-int minRychlost = 100;
+int minRychlost = 110;
 int maxRychlost = 255;
-int overPassTimeMillis=500;
+int overpassTime=80;
 int turnTimeTimeMillis = 2000;
 
 // Ultrazvukovy snimac
@@ -200,48 +201,84 @@ int findMostCommonByte(int arr[], int arrLen) {
   return mostCommonByte;
 }
 
+int thresh = 30;
+int rotThresh =30;
+String oldState="1111";
+String state;
 
+void updateState(int inthresh){
+  
+  RGBLineFollower.loop();
+  int LL = RGBLineFollower.getADCValueRGB1();
+  int L = RGBLineFollower.getADCValueRGB2();
+  int R = RGBLineFollower.getADCValueRGB3();
+  int RR = RGBLineFollower.getADCValueRGB4();
+  LL = int(LL >inthresh);
+  L = int(L >inthresh);
+  R = int(R >inthresh);
+  RR = int(RR >inthresh);
+  state = String(LL) + String(L) + String(R) + String(RR);
+  
+ }
 void loop() {
   // sejmutí dat z detektoru cary
-  RGBLineFollower.loop();
-
-
+  updateState(thresh);
+  Serial.println(state);
   linState = RGBLineFollower.getPositionState();
   lineOffset = RGBLineFollower.getPositionOffset();
-
+  Serial.println(lineOffset);
   int most_common_state = recognition(linState);
   printData(linState, lineOffset, most_common_state);
 
-
-
-  switch (linState) {
-    case 0b1001:
-      onMiddleTwo();
-      break;
-    case 0b0000:
+  if(state=="1001"){
+    onMiddleTwo();
+    }else if(state=="0000"){
       onCross();
-      break;
-    case 0b1000:
+    }else if(state=="1000" || state=="1100"){
+      
+      
+    }else if(state=="0001" || state=="0011"){
       turn90Left();
-      break;
-    
-    case 0b0001:
-      turn90Right();
-      break;
+    }else if(state=="1011" || state=="0111"){
+      regulateLeft(rs);
+    }else if(state=="1101"|| state=="1110"){
+      regulateRight(rs);
+    }else if(state=="1111" && oldState=="1111"){
+      turn180();
+    }
+//    else if(state=="1111" && oldState!="1111"){
+//      regulateLeft(normalSpeed);
+//    }
+//    regBasedOnLineOffset(lineOffset);
 
-    case 0b1011:
-      regulateRight();
-      break;
-    case 0b1101:
-      regulateLeft();
-      break;
-
-    case 0b1111:
-      driveForward(0);
-      break;
+    oldState = state;
+  switch (linState) {
+//    case "1001":
+//      onMiddleTwo();
+//      break;
+//    case "0000":
+//      onCross();
+//      break;
+//    case "1000":
+//    case "1100":
+//      turn90Left();
+//      break;
+//    case "0001":
+//    case "0011":
+//      turn90Right();
+//      break;
+//    case "1011":
+//      regulateRight(normalSpeed);
+//      break;
+//    case "1101":
+//      regulateLeft(normalSpeed);
+//      break;
+//    case "1111":
+//      turn180();
+//      break;
 
   }
-
+    delay(10);
   
   if (Bluetooth.available()){ //wait for data received
     int Data = Bluetooth.read();
@@ -263,7 +300,14 @@ void loop() {
 void onCross(){
   turn90Left();
 }
-
+void regBasedOnLineOffset(int offset){
+  if(offset<0){
+    regulateLeft(abs(offset));
+    }
+   else if(offset>0){
+    regulateRight(abs(offset));
+    }
+  }
 void onMiddleTwo(){
     if (flag_forw){
       pravyMotorVpred(normalSpeed);
@@ -274,18 +318,22 @@ void onMiddleTwo(){
     }
  }
 
-void onOneDeviation(){
-    if (linState == rightFirst){
-      regulateRight();
-  }
 
-  if (linState == leftFirst){
-    regulateLeft();
-  }
-}
 void onNothing(){
     driveForward(0);
 }
+void handleOverpass(){
+  int time = millis();
+  while((millis()-time)<overpassTime){
+    driveForward(minRychlost);
+    }
+  updateState(thresh);
+  if(state == "1111"){
+    turn90Right();
+    }else{
+       driveForward(normalSpeed);
+    }
+  }
 
 
 // osetreni preruseni od kanalu A enkoderu na pravem motoru
@@ -314,77 +362,72 @@ const long TURN_90_TIME = 250;
 
 void turn90Left(){
   long timeStart = millis();
-  while ((millis() - timeStart) < 150){
+  while ((millis() - timeStart) < normalSpeed*0.8){
       pravyMotorVpred(minRychlost);
       levyMotorVpred(minRychlost);         
     }
 
   timeStart = millis();
-
-  while ((millis() - timeStart) < 320){
+  while ((millis() - timeStart) < normalSpeed*2.2){
     pravyMotorVpred(rotationSpeed);
     levyMotorVzad(rotationSpeed);         
   }
 
   timeStart = millis();
-  RGBLineFollower.loop();
-  while (RGBLineFollower.getPositionState() != 0b1001){
-    RGBLineFollower.loop();
+  updateState(rotThresh);
+  while (state != "1001" && state != "1101" && state != "1011"){
+    
     pravyMotorVpred(minRychlost);
-    levyMotorVzad(minRychlost);  
-    if((millis() - timeStart) > 1000){
+    levyMotorVzad(minRychlost); 
+    updateState(rotThresh); 
+    if((millis() - timeStart) > 2000){
       break;
     }
   }
 }
-
+void turn180(){
+    int timeStart = millis();
+  while ((millis() - timeStart) < normalSpeed*2.4){
+    levyMotorVpred(minRychlost);
+    pravyMotorVzad(minRychlost);         
+  }
+  timeStart = millis();
+  while (state != "1001" && state != "1101" && state != "1011"){
+    levyMotorVpred(minRychlost);
+    pravyMotorVzad(minRychlost);  
+    updateState(rotThresh);
+    if((millis() - timeStart) > 2000){
+      break;
+    }
+  }
+  }
 void turn90Right(){
   long timeStart = millis();
-  while ((millis() - timeStart) < 150){
+  while ((millis() - timeStart) < normalSpeed*0.8){
       pravyMotorVpred(minRychlost);
       levyMotorVpred(minRychlost);         
     }
 
   timeStart = millis();
-  while ((millis() - timeStart) < 320){
+  while ((millis() - timeStart) < normalSpeed*2.2){
     levyMotorVpred(rotationSpeed);
     pravyMotorVzad(rotationSpeed);         
   }
 
   timeStart = millis();
-  RGBLineFollower.loop();
-  while (RGBLineFollower.getPositionState() != 0b1001){
-    RGBLineFollower.loop();
+  updateState(rotThresh);
+  while (state != "1001" && state != "1101" && state != "1011"){
     levyMotorVpred(minRychlost);
     pravyMotorVzad(minRychlost);  
-    if((millis() - timeStart) > 1000){
+    updateState(rotThresh);
+    if((millis() - timeStart) > 2000){
       break;
     }
   }
 }
 
 
-int turnLeft(){
-  flag_turning_left=true;
-  int starttime = millis();
-  while ((millis() - starttime) <=turnTimeTimeMillis){
-    driveLeft(scanningSpeed);
-    checkForMidTwo();
-   
-  }
-  flag_turning_left=false;
-  driveForward(0);
- }
-int turnRight(){
-  int starttime = millis();
-  flag_turning_right=true;
-  while ((millis() - starttime) <=turnTimeTimeMillis){
-    driveRight(scanningSpeed);
-    checkForMidTwo();
-  }
-  flag_turning_right=false;
-  driveForward(0);
- }
+
 bool checkForMidTwo(){
   if(linState==midTwo){
     flag_turning_right=false;
@@ -409,13 +452,13 @@ void driveRight(int speed){
   levyMotorVpred(speed);
   pravyMotorVzad(speed);
   }
-void regulateLeft(){
-  pravyMotorVpred(100);
-   levyMotorVpred(0);
+void regulateLeft(int speed){
+  pravyMotorVpred(speed*1.5);
+   levyMotorVpred(speed);
 }
-void regulateRight(){
-  pravyMotorVpred(0);
-   levyMotorVpred(100);
+void regulateRight(int speed){
+  pravyMotorVpred(speed);
+   levyMotorVpred(speed*1.5);
 }
 
 void levyMotorVpred(int rychlost) {
