@@ -85,160 +85,6 @@ MeRGBLed ledRing(0, numberOfLEDs);
 const byte buzzerPin = 45;
 MeBuzzer buzzer;
 
-//coffin
-#define NOTE_B0 31
-#define NOTE_C1 33
-#define NOTE_CS1 35
-#define NOTE_D1 37
-#define NOTE_DS1 39
-#define NOTE_E1 41
-#define NOTE_F1 44
-#define NOTE_FS1 46
-#define NOTE_G1 49
-#define NOTE_GS1 52
-#define NOTE_A1 55
-#define NOTE_AS1 58
-#define NOTE_B1 62
-#define NOTE_C2 65
-#define NOTE_CS2 69
-#define NOTE_D2 73
-#define NOTE_DS2 78
-#define NOTE_E2 82
-#define NOTE_F2 87
-#define NOTE_FS2 93
-#define NOTE_G2 98
-#define NOTE_GS2 104
-#define NOTE_A2 110
-#define NOTE_AS2 117
-#define NOTE_B2 123
-#define NOTE_C3 131
-#define NOTE_CS3 139
-#define NOTE_D3 147
-#define NOTE_DS3 156
-#define NOTE_E3 165
-#define NOTE_F3 175
-#define NOTE_FS3 185
-#define NOTE_G3 196
-#define NOTE_GS3 208
-#define NOTE_A3 220
-#define NOTE_AS3 233
-#define NOTE_B3 247
-#define NOTE_C4 262
-#define NOTE_CS4 277
-#define NOTE_D4 294
-#define NOTE_DS4 311
-#define NOTE_E4 330
-#define NOTE_F4 349
-#define NOTE_FS4 370
-#define NOTE_G4 392
-#define NOTE_GS4 415
-#define NOTE_A4 440
-#define NOTE_AS4 466
-#define NOTE_B4 494
-#define NOTE_C5 523
-#define NOTE_CS5 554
-#define NOTE_D5 587
-#define NOTE_DS5 622
-#define NOTE_E5 659
-#define NOTE_F5 698
-#define NOTE_FS5 740
-#define NOTE_G5 784
-#define NOTE_GS5 831
-#define NOTE_A5 880
-#define NOTE_AS5 932
-#define NOTE_B5 988
-#define NOTE_C6 1047
-#define NOTE_CS6 1109
-#define NOTE_D6 1175
-#define NOTE_DS6 1245
-#define NOTE_E6 1319
-#define NOTE_F6 1397
-#define NOTE_FS6 1480
-#define NOTE_G6 1568
-#define NOTE_GS6 1661
-#define NOTE_A6 1760
-#define NOTE_AS6 1865
-#define NOTE_B6 1976
-#define NOTE_C7 2093
-#define NOTE_CS7 2217
-#define NOTE_D7 2349
-#define NOTE_DS7 2489
-#define NOTE_E7 2637
-#define NOTE_F7 2794
-#define NOTE_FS7 2960
-#define NOTE_G7 3136
-#define NOTE_GS7 3322
-#define NOTE_A7 3520
-#define NOTE_AS7 3729
-#define NOTE_B7 3951
-#define NOTE_C8 4186
-#define NOTE_CS8 4435
-#define NOTE_D8 4699
-#define NOTE_DS8 4978
-
-int melody[] = {
-  NOTE_E5, NOTE_DS5, NOTE_E5, NOTE_DS5,
-  NOTE_E5, NOTE_B4, NOTE_D5, NOTE_C5,
-  NOTE_A4, NOTE_C4, NOTE_E4, NOTE_A4,
-  NOTE_B4, NOTE_E4, NOTE_GS4, NOTE_B4,
-  
-  NOTE_C5, NOTE_E4, NOTE_E5, NOTE_DS5,
-  NOTE_E5, NOTE_DS5, NOTE_E5, NOTE_B4,
-  NOTE_D5, NOTE_C5, NOTE_A4, NOTE_C4,
-  NOTE_E4, NOTE_A4, NOTE_B4, NOTE_E4,
-  
-  NOTE_C5, NOTE_B4, NOTE_A4, NOTE_B4,
-  NOTE_C5, NOTE_D5, NOTE_E5, NOTE_G4,
-  NOTE_F5, NOTE_E5, NOTE_D5, NOTE_F4,
-  NOTE_E5, NOTE_D5, NOTE_C5, NOTE_E4,
-  
-  NOTE_D5, NOTE_C5, NOTE_B4, NOTE_E4,
-  NOTE_E5, NOTE_E4, NOTE_E5, NOTE_E4,
-  NOTE_E5, NOTE_E4, NOTE_E5, NOTE_DS4,
-  NOTE_E5, NOTE_D4, NOTE_E5, NOTE_DS4,
-  
-  NOTE_E5, NOTE_B4, NOTE_D5, NOTE_C5,
-  NOTE_A4, NOTE_C4, NOTE_E4, NOTE_A4,
-  NOTE_B4, NOTE_E4, NOTE_GS4, NOTE_B4,
-  NOTE_C5, NOTE_E4, NOTE_E5, NOTE_DS5,
-
-  NOTE_E5, NOTE_DS5, NOTE_E5, NOTE_B4,
-  NOTE_D5, NOTE_C5, NOTE_A4, NOTE_C4,
-  NOTE_E4, NOTE_A4, NOTE_B4, NOTE_E4,
-  NOTE_C5, NOTE_B4, NOTE_A4, 0,
-};
-// note durations: 4 = quarter note, 8 = eighth note, etc.:
-int noteDurations[] = {
-  9, 9, 9, 9,
-  9, 9, 9, 9,
-  3, 9, 9, 9,
-  3, 9, 9, 9,
-
-  3, 9, 9, 9,
-  9, 9, 9, 9,
-  9, 9, 3, 9,
-  9, 9, 3, 9,
-
-  9, 9, 3, 9,
-  9, 9, 3, 9,
-  9, 9, 3, 9,
-  9, 9, 3, 9,
-
-  9, 9, 9, 9,
-  9, 9, 9, 9,
-  9, 9, 9, 9,
-  9, 9, 9, 9,
-
-  9, 9, 9, 9,
-  3, 9, 9, 9,
-  3, 9, 9, 9,
-  3, 9, 9, 9,
-
-  9, 9, 9, 9,
-  9, 9, 3, 9,
-  9, 9, 3, 8,
-  8, 8, 1, 9,
-};
 
 // Gyro
 MeGyro gyro(1, 0x69);
@@ -351,26 +197,13 @@ int sensor_threshold = 25;         //25 ideál pro roboty 11 a 8 //28 se šmouho
 int smouha = 40;       //45
 int left_threshold = 17;     //22 //24 //levá čára je 9 až 19, takže přes 20 nedávat (robot 2) //17!! //14 ve tmě
 int smouhaLeft = 38;   //25 //20 //30
-int prahRight = 28;    //22 //24
+int thresholdRight = 28;    //22 //24
 int smouhaRight = 10;  //25 //20
 
 int raceSpeed = 200;            //190
 int dorovnavaciKonstanta = 55;  //40
 ////////////////////
 
-
-
-
-
-int * updateRGBFollower(){
-  RGBLineFollower.loop();
-  int LL = RGBLineFollower.getADCValueRGB1();
-  int L = RGBLineFollower.getADCValueRGB2();
-  int R = RGBLineFollower.getADCValueRGB3();
-  int RR = RGBLineFollower.getADCValueRGB4();
-  static int values[] = {LL, L, R, RR};
-  return values;
-}
 
 void runLED(uint8_t R, uint8_t G, uint8_t B){
   ledRing.setColor(RINGALLLEDS, R, G, B);
@@ -403,7 +236,7 @@ void loop() {
       finale_status = 1;
     }
     if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > smouha) {
-      zjistiCil();
+      dertermineFinish();
     }
 
     if (LL < left_threshold && vlevo == 0 && XLLL == 0) {  //jeden fake alarm
@@ -413,7 +246,7 @@ void loop() {
     if (LL < left_threshold && millis() - timerVlevo > smouhaLeft && vlevo == 1) {  //když můžeš zatoč vlevo
       x = 1;                                                                  //vypni zatáčení doprava
 
-      zjistiCil();
+      dertermineFinish();
       timerVlevo = 0;
       vlevo = 0;
       LLL = 1;
@@ -542,11 +375,11 @@ void loop() {
       }
     }
     if (dir == 'F') {
-      if ((RR < prahRight || LL < left_threshold) && rovne == 0) {  //fake
+      if ((RR < thresholdRight || LL < left_threshold) && rovne == 0) {  //fake
         timerRovne = millis();
         rovne = 1;
       }
-      if ((RR < prahRight && millis() - timerRovne > smouhaRight / 3) || (LL < left_threshold && millis() - timerRovne > smouhaLeft / 3)) {  //ví, že má jet rovně, takže musí zjistit, že projel přípojkou, jedno zda levou či pravou
+      if ((RR < thresholdRight && millis() - timerRovne > smouhaRight / 3) || (LL < left_threshold && millis() - timerRovne > smouhaLeft / 3)) {  //ví, že má jet rovně, takže musí zjistit, že projel přípojkou, jedno zda levou či pravou
         rovne2 = 1;
       }
       if (rovne2 == 1 && millis() - timerRovne > smouha * 5) {  //ošetření aby se tenhle paznecht nepouštěl dřív než má
@@ -561,11 +394,11 @@ void loop() {
       Serial.print('-');
       Serial.print(RR);
       Serial.print('-');
-      if (RR < prahRight && vpravo == 0) {  //fake
+      if (RR < thresholdRight && vpravo == 0) {  //fake
         timerVpravo = millis();
         vpravo = 1;
       }
-      if (RR < prahRight && millis() - timerVpravo > smouhaRight / 3) {  //když můžeš vpravo a máš jet vpravo jeď vpravo
+      if (RR < thresholdRight && millis() - timerVpravo > smouhaRight / 3) {  //když můžeš vpravo a máš jet vpravo jeď vpravo
         stop();
         delay(100);
         R_90R(LL, L, R, RR);
@@ -581,7 +414,7 @@ void loop() {
         finale_status = 1;
       }
       if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > smouha) {
-        zjistiCil();
+        dertermineFinish();
         finale_status = 0;
       }
     }
@@ -623,11 +456,11 @@ void loop() {
       levyMotorVpred(raceSpeed + dorovnavaciKonstanta);
       pravyMotorVpred(raceSpeed - dorovnavaciKonstanta);
     }
-    if (LL < left_threshold && L > sensor_threshold && R > sensor_threshold && RR > prahRight) {  //na care je pouze LL -> hodně přitoč doleva
+    if (LL < left_threshold && L > sensor_threshold && R > sensor_threshold && RR > thresholdRight) {  //na care je pouze LL -> hodně přitoč doleva
       levyMotorVzad(255);
       pravyMotorVpred(raceSpeed + dorovnavaciKonstanta);
     }
-    if (LL > left_threshold && L > sensor_threshold && R > sensor_threshold && RR < prahRight) {  //na care je pouze RR -> hodně přitoč doprava
+    if (LL > left_threshold && L > sensor_threshold && R > sensor_threshold && RR < thresholdRight) {  //na care je pouze RR -> hodně přitoč doprava
       levyMotorVpred(255);
       pravyMotorVzad(raceSpeed - 2 * dorovnavaciKonstanta);
     }
@@ -671,20 +504,20 @@ void L90(int LL, int L, int R, int RR) {
   while (millis() - pockej < 250) {  //200
     //misto delaye
   }
-  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {
+  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
     RGBLineFollower.loop();
     LL = RGBLineFollower.getADCValueRGB1();
     L = RGBLineFollower.getADCValueRGB2();
     R = RGBLineFollower.getADCValueRGB3();
     RR = RGBLineFollower.getADCValueRGB4();
   }
-  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight) {
+  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
     RGBLineFollower.loop();
     LL = RGBLineFollower.getADCValueRGB1();
     L = RGBLineFollower.getADCValueRGB2();
     R = RGBLineFollower.getADCValueRGB3();
     RR = RGBLineFollower.getADCValueRGB4();
-    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {
+    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
       RGBLineFollower.loop();
       LL = RGBLineFollower.getADCValueRGB1();
       L = RGBLineFollower.getADCValueRGB2();
@@ -727,20 +560,20 @@ void R_90(int LL, int L, int R, int RR) {
     //misto delaye
   }
 
-  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {  //toč dokud nenarazíš na čáru
+  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {  //toč dokud nenarazíš na čáru
     RGBLineFollower.loop();
     LL = RGBLineFollower.getADCValueRGB1();
     L = RGBLineFollower.getADCValueRGB2();
     R = RGBLineFollower.getADCValueRGB3();
     RR = RGBLineFollower.getADCValueRGB4();
   }
-  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight) {
+  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
     RGBLineFollower.loop();
     LL = RGBLineFollower.getADCValueRGB1();
     L = RGBLineFollower.getADCValueRGB2();
     R = RGBLineFollower.getADCValueRGB3();
     RR = RGBLineFollower.getADCValueRGB4();
-    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {
+    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
       RGBLineFollower.loop();
       LL = RGBLineFollower.getADCValueRGB1();
       L = RGBLineFollower.getADCValueRGB2();
@@ -764,20 +597,20 @@ void R180() {
   stop();
 }
 
-void zjistiCil() {
+void dertermineFinish() {
   stop();
-  unsigned long pockej = millis();
-  while (millis() - pockej < 100) {
+  unsigned long wait_time = millis();
+  while (millis() - wait_time < 100) {
     //misto delaye
   }
   levyMotorVpred(80);
   pravyMotorVpred(80);
-  pockej = millis();
-  while (millis() - pockej < 450 - smouha) {  //350 //550
+  wait_time = millis();
+  while (millis() - wait_time < 450 - smouha) {  //350 //550
     //misto delaye
   }
   stop();
-  while (millis() - pockej < 100) {
+  while (millis() - wait_time < 100) {
     //misto delaye
   }
   RGBLineFollower.loop();
@@ -785,12 +618,11 @@ void zjistiCil() {
   int L = RGBLineFollower.getADCValueRGB2();
   int R = RGBLineFollower.getADCValueRGB3();
   int RR = RGBLineFollower.getADCValueRGB4();
-  if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < prahRight) {
+  if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
     runLED(yellow);
     findShortest();
     if (race == 1) {
       runLED(yellow);
-      coffin();
       reinicializace();
       while (digitalRead(pravyNaraznik)) {
         //nepokračuj dokud není stisknut pravý nárazník
@@ -815,12 +647,11 @@ void zjistiCil() {
     int L = RGBLineFollower.getADCValueRGB2();
     int R = RGBLineFollower.getADCValueRGB3();
     int RR = RGBLineFollower.getADCValueRGB4();
-    if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < prahRight) {
+    if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
       runLED(yellow);
       findShortest();
       if (race == 1) {
         runLED(yellow);
-        coffin();
         reinicializace();
         while (digitalRead(pravyNaraznik)) {
           //nepokračuj dokud není stisknut pravý nárazník
@@ -918,6 +749,164 @@ void reinicializace() {
 
 /////////////======================================
 
+
+//======race metody
+void L90R(int LL, int L, int R, int RR) {
+  driveLeft(140); //levyMotorVzad(140);    //150
+                  //pravyMotorVpred(140);  //150
+  unsigned long pockej = millis();
+  while (millis() - pockej < 250) {  //200
+    //misto delaye
+  }
+  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
+    RGBLineFollower.loop();
+    LL = RGBLineFollower.getADCValueRGB1();
+    L = RGBLineFollower.getADCValueRGB2();
+    R = RGBLineFollower.getADCValueRGB3();
+    RR = RGBLineFollower.getADCValueRGB4();
+  }
+  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
+    RGBLineFollower.loop();
+    LL = RGBLineFollower.getADCValueRGB1();
+    L = RGBLineFollower.getADCValueRGB2();
+    R = RGBLineFollower.getADCValueRGB3();
+    RR = RGBLineFollower.getADCValueRGB4();
+    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
+      RGBLineFollower.loop();
+      LL = RGBLineFollower.getADCValueRGB1();
+      L = RGBLineFollower.getADCValueRGB2();
+      R = RGBLineFollower.getADCValueRGB3();
+      RR = RGBLineFollower.getADCValueRGB4();
+    }
+  }
+
+  XLLL = 1;
+  timerXLLL = millis();
+}
+
+
+void R_90R(int LL, int L, int R, int RR) {
+  stop();
+  unsigned long pockej = millis();
+  while (millis() - pockej < 100) {
+    //misto delaye
+  }
+  driveForward(80);
+  pockej = millis();
+  while (millis() - pockej < 150 - smouha) {  //350 //550
+    //misto delaye
+  }
+  stop();
+  while (millis() - pockej < 100) {
+    //misto delaye
+  }
+
+  levyMotorVpred(140);  //140
+  pravyMotorVzad(147);  //140
+
+  pockej = millis();                 //vyhodí ho z dráhy
+  while (millis() - pockej < 150) {  //200
+    //misto delaye
+  }
+
+  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {  //toč dokud nenarazíš na čáru
+    RGBLineFollower.loop();
+    LL = RGBLineFollower.getADCValueRGB1();
+    L = RGBLineFollower.getADCValueRGB2();
+    R = RGBLineFollower.getADCValueRGB3();
+    RR = RGBLineFollower.getADCValueRGB4();
+  }
+  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
+    RGBLineFollower.loop();
+    LL = RGBLineFollower.getADCValueRGB1();
+    L = RGBLineFollower.getADCValueRGB2();
+    R = RGBLineFollower.getADCValueRGB3();
+    RR = RGBLineFollower.getADCValueRGB4();
+    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
+      RGBLineFollower.loop();
+      LL = RGBLineFollower.getADCValueRGB1();
+      L = RGBLineFollower.getADCValueRGB2();
+      R = RGBLineFollower.getADCValueRGB3();
+      RR = RGBLineFollower.getADCValueRGB4();
+    }
+  }
+  driveForward(80);
+}
+
+
+void zjistiCilR() {
+  stop();
+  unsigned long wait_time = millis();
+  while (millis() - wait_time < 100) {
+    //misto delaye
+  }
+  driveForward(80);
+  wait_time = millis();
+  while (millis() - wait_time < 250 - smouha) {  //150
+    //misto delaye
+  }
+  stop();
+  while (millis() - wait_time < 100) {
+    //misto delaye
+  }
+  RGBLineFollower.loop();
+  int LL = RGBLineFollower.getADCValueRGB1();
+  int L = RGBLineFollower.getADCValueRGB2();
+  int R = RGBLineFollower.getADCValueRGB3();
+  int RR = RGBLineFollower.getADCValueRGB4();
+  if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
+    runLED(yellow);
+    findShortest();
+    if (race == 1) {
+      runLED(yellow);
+      reinicializace();
+      while (digitalRead(pravyNaraznik)) {
+        //nepokračuj dokud není stisknut pravý nárazník
+      }
+      driveForward(100);
+      runLED(aquamarine);
+      return;
+    }
+    reinicializace();
+    while (digitalRead(pravyNaraznik)) {
+      //nepokračuj dokud není stisknut pravý nárazník
+    }
+    driveForward(100);
+    runLED(aquamarine);
+    return;  //vrátí se do loopu
+  } else {
+    RGBLineFollower.loop();
+    int LL = RGBLineFollower.getADCValueRGB1();
+    int L = RGBLineFollower.getADCValueRGB2();
+    int R = RGBLineFollower.getADCValueRGB3();
+    int RR = RGBLineFollower.getADCValueRGB4();
+    if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
+      runLED(yellow);
+      findShortest();
+      if (race == 1) {
+        runLED(yellow);
+        reinicializace();
+        while (digitalRead(pravyNaraznik)) {
+          //nepokračuj dokud není stisknut pravý nárazník
+        }
+        driveForward(100);
+        runLED(aquamarine);
+        return;
+      }
+      reinicializace();
+      while (digitalRead(pravyNaraznik)) {
+        //nepokračuj dokud není stisknut pravý nárazník
+      }
+      driveForward(100);
+      runLED(aquamarine);
+      return;  //vrátí se do loopu
+    } else if (XLLL == 0) {
+      L90R(LL, L, R, RR);  //jen pokus, že by se nevracel ale rovnou za křižovatkou zatočil - lepší než předtím
+      //sem NEdávej LLL=1 ty idiote
+    }
+  }
+}
+
 // osetreni preruseni od kanalu A enkoderu na pravem motoru
 void pravyEncoderAInt() {
   pulseCountVpravo++;  // vzestupna -> pricti puls
@@ -960,187 +949,19 @@ void pravyMotorStop() {
   analogWrite(pwmMotorPravy, 0);
 }
 
-void coffin() {
-  for (int thisNote = 0; thisNote < 64; thisNote++) {
-
-    int noteDuration = 400 / noteDurations[thisNote];
-    buzzer.tone(melody[thisNote], noteDuration);
-
-    int pauseBetweenNotes = noteDuration * 1.30;
-    delay(pauseBetweenNotes);
-
-    buzzer.noTone();
-  }
+void driveForward(int speed){
+  pravyMotorVpred(speed);
+  levyMotorVpred(speed);
 }
-
-//======race metody
-void L90R(int LL, int L, int R, int RR) {
-  levyMotorVzad(140);    //150
-  pravyMotorVpred(140);  //150
-  unsigned long pockej = millis();
-  while (millis() - pockej < 250) {  //200
-    //misto delaye
-  }
-  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
-  }
-  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
-    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {
-      RGBLineFollower.loop();
-      LL = RGBLineFollower.getADCValueRGB1();
-      L = RGBLineFollower.getADCValueRGB2();
-      R = RGBLineFollower.getADCValueRGB3();
-      RR = RGBLineFollower.getADCValueRGB4();
-    }
-  }
-
-  XLLL = 1;
-  timerXLLL = millis();
+void driveBackward(int speed){
+  pravyMotorVzad(speed);
+  levyMotorVzad(speed);
 }
-
-void R90R() {
-  levyMotorVpred(140);  //140
-  pravyMotorVzad(147);  //140
+void driveLeft(int speed){
+  pravyMotorVpred(speed);
+  levyMotorVzad(speed);
 }
-
-void R_90R(int LL, int L, int R, int RR) {
-  stop();
-  unsigned long pockej = millis();
-  while (millis() - pockej < 100) {
-    //misto delaye
-  }
-  levyMotorVpred(80);
-  pravyMotorVpred(80);
-  pockej = millis();
-  while (millis() - pockej < 150 - smouha) {  //350 //550
-    //misto delaye
-  }
-  stop();
-  while (millis() - pockej < 100) {
-    //misto delaye
-  }
-
-  levyMotorVpred(140);  //140
-  pravyMotorVzad(147);  //140
-
-  pockej = millis();                 //vyhodí ho z dráhy
-  while (millis() - pockej < 150) {  //200
-    //misto delaye
-  }
-
-  while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {  //toč dokud nenarazíš na čáru
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
-  }
-  if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
-    while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > prahRight)) {
-      RGBLineFollower.loop();
-      LL = RGBLineFollower.getADCValueRGB1();
-      L = RGBLineFollower.getADCValueRGB2();
-      R = RGBLineFollower.getADCValueRGB3();
-      RR = RGBLineFollower.getADCValueRGB4();
-    }
-  }
-  levyMotorVpred(80);
-  pravyMotorVpred(80);
-}
-
-
-void zjistiCilR() {
-  stop();
-  unsigned long pockej = millis();
-  while (millis() - pockej < 100) {
-    //misto delaye
-  }
-  levyMotorVpred(80);
-  pravyMotorVpred(80);
-  pockej = millis();
-  while (millis() - pockej < 250 - smouha) {  //150
-    //misto delaye
-  }
-  stop();
-  while (millis() - pockej < 100) {
-    //misto delaye
-  }
-  RGBLineFollower.loop();
-  int LL = RGBLineFollower.getADCValueRGB1();
-  int L = RGBLineFollower.getADCValueRGB2();
-  int R = RGBLineFollower.getADCValueRGB3();
-  int RR = RGBLineFollower.getADCValueRGB4();
-  if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < prahRight) {
-    runLED(yellow);
-    findShortest();
-    if (race == 1) {
-      runLED(yellow);
-      coffin();
-      reinicializace();
-      while (digitalRead(pravyNaraznik)) {
-        //nepokračuj dokud není stisknut pravý nárazník
-      }
-      levyMotorVpred(100);
-      pravyMotorVpred(100);
-      runLED(aquamarine);
-      return;
-    }
-    coffin();
-    reinicializace();
-    while (digitalRead(pravyNaraznik)) {
-      //nepokračuj dokud není stisknut pravý nárazník
-    }
-    levyMotorVpred(100);
-    pravyMotorVpred(100);
-    runLED(aquamarine);
-    return;  //vrátí se do loopu
-  } else {
-    RGBLineFollower.loop();
-    int LL = RGBLineFollower.getADCValueRGB1();
-    int L = RGBLineFollower.getADCValueRGB2();
-    int R = RGBLineFollower.getADCValueRGB3();
-    int RR = RGBLineFollower.getADCValueRGB4();
-    if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < prahRight) {
-      runLED(yellow);
-      findShortest();
-      if (race == 1) {
-        runLED(yellow);
-        coffin();
-        reinicializace();
-        while (digitalRead(pravyNaraznik)) {
-          //nepokračuj dokud není stisknut pravý nárazník
-        }
-        levyMotorVpred(100);
-        pravyMotorVpred(100);
-        runLED(aquamarine);
-        return;
-      }
-      coffin();
-      reinicializace();
-      while (digitalRead(pravyNaraznik)) {
-        //nepokračuj dokud není stisknut pravý nárazník
-      }
-      levyMotorVpred(100);
-      pravyMotorVpred(100);
-      runLED(aquamarine);
-      return;  //vrátí se do loopu
-    } else if (XLLL == 0) {
-      L90R(LL, L, R, RR);  //jen pokus, že by se nevracel ale rovnou za křižovatkou zatočil - lepší než předtím
-      //sem NEdávej LLL=1 ty idiote
-    }
-  }
+void driveRight(int speed){
+  levyMotorVpred(speed);
+  pravyMotorVzad(speed);
 }
