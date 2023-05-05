@@ -194,11 +194,11 @@ char dir = 'F';  //inicializace musí být vždy na něco, v tomto úžasném ja
 int first_crossing_state = 0;
 
 int sensor_threshold = 25;         //25 ideál pro roboty 11 a 8 //28 se šmouhou 45 u robota číslo 9 //18 až 25 se šmouhou 45 u robota číslo 8
-int smouha = 40;       //45
+int shade = 40;       //45
 int left_threshold = 17;     //22 //24 //levá čára je 9 až 19, takže přes 20 nedávat (robot 2) //17!! //14 ve tmě
-int smouhaLeft = 38;   //25 //20 //30
+int shadeLeft = 38;   //25 //20 //30
 int thresholdRight = 28;    //22 //24
-int smouhaRight = 10;  //25 //20
+int shadeRight = 10;  //25 //20
 
 int raceSpeed = 200;            //190
 int dorovnavaciKonstanta = 55;  //40
@@ -235,7 +235,7 @@ void loop() {
       timerCil = millis();
       finale_status = 1;
     }
-    if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > smouha) {
+    if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > shade) {
       dertermineFinish();
     }
 
@@ -243,7 +243,7 @@ void loop() {
       timerVlevo = millis();
       vlevo = 1;
     }
-    if (LL < left_threshold && millis() - timerVlevo > smouhaLeft && vlevo == 1) {  //když můžeš zatoč vlevo
+    if (LL < left_threshold && millis() - timerVlevo > shadeLeft && vlevo == 1) {  //když můžeš zatoč vlevo
       x = 1;                                                                  //vypni zatáčení doprava
 
       dertermineFinish();
@@ -280,10 +280,10 @@ void loop() {
         rovne = 1;
         FFF = 1;
       }
-      if (RR < sensor_threshold && millis() - timerRovne > smouha) {  //ošetřeno aby se nespouštělo při zatáčce vpravo (maybe)
+      if (RR < sensor_threshold && millis() - timerRovne > shade) {  //ošetřeno aby se nespouštělo při zatáčce vpravo (maybe)
         FFF = 1;
       }
-      if (FFF == 1 && millis() - timerRovne > smouha * 5) {
+      if (FFF == 1 && millis() - timerRovne > shade * 5) {
         rovne = 0;
         FFF = 0;
 
@@ -291,14 +291,15 @@ void loop() {
         changeDir('F');
       }
 
-      levyMotorVpred(110);   //80 víc ne
-      pravyMotorVpred(110);  //80
+      driveForward(110);
+      //levyMotorVpred(110);   //80 víc ne
+      //pravyMotorVpred(110);  //80
       x = 0;
       otocka = 0;
     } else if (LL > sensor_threshold && L > sensor_threshold && R > sensor_threshold && RR > sensor_threshold && x == 0 && vpravo == 0 && otocka == 0) {  //fake
       timerVpravo = millis();
       vpravo = 1;
-    } else if (LL > sensor_threshold && L > sensor_threshold && R > sensor_threshold && RR > sensor_threshold && x == 0 && millis() - timerVpravo > smouha) {  //mimo čáru toč vpravo
+    } else if (LL > sensor_threshold && L > sensor_threshold && R > sensor_threshold && RR > sensor_threshold && x == 0 && millis() - timerVpravo > shade) {  //mimo čáru toč vpravo
       if (RRR == 0) {
         oldLevaVzdalenost = pulseCountVlevo * prevodniKonstanta;
       }
@@ -335,8 +336,7 @@ void loop() {
       while (digitalRead(pravyNaraznik)) {
         //nepokračuj dokud není stisknut pravý nárazník
       }
-      levyMotorVpred(100);
-      pravyMotorVpred(100);
+      driveForward(100);
       runLED(orange);
       LED = 0;
       return;
@@ -365,7 +365,7 @@ void loop() {
         timerVlevo = millis();
         vlevo = 1;
       }
-      if (LL < left_threshold && millis() - timerVlevo > smouhaLeft / 3 && vlevo == 1) {  //když můžeš zatoč vlevo
+      if (LL < left_threshold && millis() - timerVlevo > shadeLeft / 3 && vlevo == 1) {  //když můžeš zatoč vlevo
         stop();
         delay(100);
         zjistiCilR();  //obsahuje L90
@@ -379,10 +379,10 @@ void loop() {
         timerRovne = millis();
         rovne = 1;
       }
-      if ((RR < thresholdRight && millis() - timerRovne > smouhaRight / 3) || (LL < left_threshold && millis() - timerRovne > smouhaLeft / 3)) {  //ví, že má jet rovně, takže musí zjistit, že projel přípojkou, jedno zda levou či pravou
+      if ((RR < thresholdRight && millis() - timerRovne > shadeRight / 3) || (LL < left_threshold && millis() - timerRovne > shadeLeft / 3)) {  //ví, že má jet rovně, takže musí zjistit, že projel přípojkou, jedno zda levou či pravou
         rovne2 = 1;
       }
-      if (rovne2 == 1 && millis() - timerRovne > smouha * 5) {  //ošetření aby se tenhle paznecht nepouštěl dřív než má
+      if (rovne2 == 1 && millis() - timerRovne > shade * 5) {  //ošetření aby se tenhle paznecht nepouštěl dřív než má
         FFF = 1;
         rovne = 0;
         rovne2 = 0;
@@ -398,7 +398,7 @@ void loop() {
         timerVpravo = millis();
         vpravo = 1;
       }
-      if (RR < thresholdRight && millis() - timerVpravo > smouhaRight / 3) {  //když můžeš vpravo a máš jet vpravo jeď vpravo
+      if (RR < thresholdRight && millis() - timerVpravo > shadeRight / 3) {  //když můžeš vpravo a máš jet vpravo jeď vpravo
         stop();
         delay(100);
         R_90R(LL, L, R, RR);
@@ -413,7 +413,7 @@ void loop() {
         timerCil = millis();
         finale_status = 1;
       }
-      if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > smouha) {
+      if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > shade) {
         dertermineFinish();
         finale_status = 0;
       }
@@ -445,8 +445,7 @@ void loop() {
       RRR = 0;
       FFF = 0;
 
-      levyMotorVpred(raceSpeed);   //190
-      pravyMotorVpred(raceSpeed);  //190
+      driveForward(raceSpeed); //190
     }
     if (L < sensor_threshold && R > sensor_threshold) {  //pritoc doleva //x01x
       levyMotorVpred(raceSpeed - dorovnavaciKonstanta);
@@ -468,20 +467,20 @@ void loop() {
 
   //============================================================
   //čištění fejkStacku nebo jak to nazvat xd - na konci loopu
-  if (millis() - timerVlevo > smouha + 2) {
+  if (millis() - timerVlevo > shade + 2) {
     timerVlevo = 0;
     vlevo = 0;
   }
-  if (millis() - timerVpravo > smouha + 2) {
+  if (millis() - timerVpravo > shade + 2) {
     timerVpravo = 0;
     vpravo = 0;
   }
-  if (millis() - timerCil > smouha + 2) {
+  if (millis() - timerCil > shade + 2) {
     timerCil = 0;
     finale_status = 0;
   }
 
-  if (millis() - timerRovne > smouha * 5 + 2) {
+  if (millis() - timerRovne > shade * 5 + 2) {
     timerRovne = 0;
     rovne = 0;
   }
@@ -498,8 +497,9 @@ void stop() {
 }
 
 void L90(int LL, int L, int R, int RR) {
-  levyMotorVzad(150);    //150 //140
-  pravyMotorVpred(150);  //150
+  driveLeft(150);
+  //levyMotorVzad(150);    //150 //140
+  //pravyMotorVpred(150);  //150
   unsigned long pockej = millis();
   while (millis() - pockej < 250) {  //200
     //misto delaye
@@ -541,10 +541,9 @@ void R_90(int LL, int L, int R, int RR) {
   while (millis() - pockej < 100) {
     //misto delaye
   }
-  levyMotorVpred(80);
-  pravyMotorVpred(80);
+  driveForward(80);
   pockej = millis();
-  while (millis() - pockej < 350 - smouha) {  //350 //550
+  while (millis() - pockej < 350 - shade) {  //350 //550
     //misto delaye
   }
   stop();
@@ -581,18 +580,19 @@ void R_90(int LL, int L, int R, int RR) {
       RR = RGBLineFollower.getADCValueRGB4();
     }
   }
-  levyMotorVpred(80);
-  pravyMotorVpred(80);
+  driveForward(80);
 }
 
 void R180() {
   stop();
   delay(500);
+  driveBackward(80);
   levyMotorVzad(80);
   pravyMotorVzad(80);
   delay(600);
-  levyMotorVpred(127);
-  pravyMotorVzad(127);
+  driveRight(127);
+  //levyMotorVpred(127);
+  //pravyMotorVzad(127);
   delay(1400);  //1400
   stop();
 }
@@ -603,10 +603,9 @@ void dertermineFinish() {
   while (millis() - wait_time < 100) {
     //misto delaye
   }
-  levyMotorVpred(80);
-  pravyMotorVpred(80);
+  driveForward(80);
   wait_time = millis();
-  while (millis() - wait_time < 450 - smouha) {  //350 //550
+  while (millis() - wait_time < 450 - shade) {  //350 //550
     //misto delaye
   }
   stop();
@@ -627,8 +626,7 @@ void dertermineFinish() {
       while (digitalRead(pravyNaraznik)) {
         //nepokračuj dokud není stisknut pravý nárazník
       }
-      levyMotorVpred(100);
-      pravyMotorVpred(100);
+      driveForward(100);
       runLED(aquamarine);
       return;
     }
@@ -637,8 +635,7 @@ void dertermineFinish() {
     while (digitalRead(pravyNaraznik)) {
       //nepokračuj dokud není stisknut pravý nárazník
     }
-    levyMotorVpred(100);
-    pravyMotorVpred(100);
+    driveForward(100);
     runLED(aquamarine);
     return;  //vrátí se do loopu
   } else {
@@ -656,8 +653,7 @@ void dertermineFinish() {
         while (digitalRead(pravyNaraznik)) {
           //nepokračuj dokud není stisknut pravý nárazník
         }
-        levyMotorVpred(100);
-        pravyMotorVpred(100);
+        driveForward(100);
         runLED(aquamarine);
         return;
       }
@@ -666,8 +662,7 @@ void dertermineFinish() {
       while (digitalRead(pravyNaraznik)) {
         //nepokračuj dokud není stisknut pravý nárazník
       }
-      levyMotorVpred(100);
-      pravyMotorVpred(100);
+      driveForward(100);
       runLED(aquamarine);
       return;  //vrátí se do loopu
     } else if (XLLL == 0) {
@@ -752,8 +747,7 @@ void reinicializace() {
 
 //======race metody
 void L90R(int LL, int L, int R, int RR) {
-  driveLeft(140); //levyMotorVzad(140);    //150
-                  //pravyMotorVpred(140);  //150
+  driveLeft(140);  //150
   unsigned long pockej = millis();
   while (millis() - pockej < 250) {  //200
     //misto delaye
@@ -793,7 +787,7 @@ void R_90R(int LL, int L, int R, int RR) {
   }
   driveForward(80);
   pockej = millis();
-  while (millis() - pockej < 150 - smouha) {  //350 //550
+  while (millis() - pockej < 150 - shade) {  //350 //550
     //misto delaye
   }
   stop();
@@ -842,7 +836,7 @@ void zjistiCilR() {
   }
   driveForward(80);
   wait_time = millis();
-  while (millis() - wait_time < 250 - smouha) {  //150
+  while (millis() - wait_time < 250 - shade) {  //150
     //misto delaye
   }
   stop();
