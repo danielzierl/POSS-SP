@@ -211,17 +211,25 @@ void runLED(uint8_t R, uint8_t G, uint8_t B){
   LED = 0;
 }
 
+
+int* updataRGBLineFollower() {
+  RGBLineFollower.loop();
+  int LL = RGBLineFollower.getADCValueRGB1();
+  int L = RGBLineFollower.getADCValueRGB2();
+  int R = RGBLineFollower.getADCValueRGB3();
+  int RR = RGBLineFollower.getADCValueRGB4();
+  int* RGBVals = new int[4] {LL, L, R, RR};
+  return RGBVals;
+}
+
 void loop() {
   LED++;
   if (LED > 2000) {
     runLED(white);
   }
 
-  RGBLineFollower.loop();
-  int LL = RGBLineFollower.getADCValueRGB1();
-  int L = RGBLineFollower.getADCValueRGB2();
-  int R = RGBLineFollower.getADCValueRGB3();
-  int RR = RGBLineFollower.getADCValueRGB4();
+  int* RGBVals = updataRGBLineFollower();
+  int LL = RGBVals[0]; int L = RGBVals[1]; int R = RGBVals[2]; int RR = RGBVals[3]; delete[] RGBVals;
 
   if (race == 0) {
     if (first_crossing_state == 0) {
@@ -327,144 +335,149 @@ void loop() {
     }
   }
   //=============================RACE=================================================================
-  else if (race == 1) {
-    if (digitalRead(levyNaraznik) == false) {  //levý nárazník v průběhu závodu ho stopne
-      stop();
-      reinicializace();
-      while (digitalRead(pravyNaraznik)) {
-        //nepokračuj dokud není stisknut pravý nárazník
-      }
-      driveForward(100);
-      runLED(orange);
-      LED = 0;
-      return;
-    }
+  else if (race == 1){
+    finalRace(LL, L, R, RR);
+  }
+  cleaning();
+}
 
-    if (first_crossing_state == 0) {
-      LLL = 0;
-      first_crossing_state = 1;
-      dir = way.charAt(raceIndex);
-      levyMotorVpred(110);   //80 víc ne
-      pravyMotorVpred(112);  //80
-      delay(1000);
+void finalRace(int LL, int L, int R, int RR){
+  if (digitalRead(levyNaraznik) == false) {  //levý nárazník v průběhu závodu ho stopne
+    stop();
+    reinicializace();
+    while (digitalRead(pravyNaraznik)) {
+      //nepokračuj dokud není stisknut pravý nárazník
     }
+    driveForward(100);
+    runLED(orange);
+    LED = 0;
+    return;
+  }
+
+  if (first_crossing_state == 0) {
+    LLL = 0;
+    first_crossing_state = 1;
     dir = way.charAt(raceIndex);
-    Serial.print(raceIndex);
-    Serial.print(':');
-    Serial.println(dir);
+    levyMotorVpred(110);   //80 víc ne
+    pravyMotorVpred(112);  //80
+    delay(1000);
+  }
+  dir = way.charAt(raceIndex);
+  Serial.print(raceIndex);
+  Serial.print(':');
+  Serial.println(dir);
 
-    if (dir == 'L') {  //porovnávání stringů ani charů vůbec nefunguje naprosto napíču nevim co s tím
-      Serial.print('L');
-      Serial.print('L');
-      Serial.print('-');
-      Serial.print(LL);
-      Serial.print('-');
-      if (LL < left_threshold && vlevo == 0 && XLLL == 0) {  //jeden fake alarm
-        timerVlevo = millis();
-        vlevo = 1;
-      }
-      if (LL < left_threshold && millis() - timerVlevo > shadeLeft / 3 && vlevo == 1) {  //když můžeš zatoč vlevo
-        stop();
-        delay(100);
-        zjistiCilR();  //obsahuje L90
-        timerVlevo = 0;
-        vlevo = 0;
-        LLL = 1;
-      }
+  if (dir == 'L') {  //porovnávání stringů ani charů vůbec nefunguje naprosto napíču nevim co s tím
+    Serial.print('L');
+    Serial.print('L');
+    Serial.print('-');
+    Serial.print(LL);
+    Serial.print('-');
+    if (LL < left_threshold && vlevo == 0 && XLLL == 0) {  //jeden fake alarm
+      timerVlevo = millis();
+      vlevo = 1;
     }
-    if (dir == 'F') {
-      if ((RR < thresholdRight || LL < left_threshold) && rovne == 0) {  //fake
-        timerRovne = millis();
-        rovne = 1;
-      }
-      if ((RR < thresholdRight && millis() - timerRovne > shadeRight / 3) || (LL < left_threshold && millis() - timerRovne > shadeLeft / 3)) {  //ví, že má jet rovně, takže musí zjistit, že projel přípojkou, jedno zda levou či pravou
-        rovne2 = 1;
-      }
-      if (rovne2 == 1 && millis() - timerRovne > shade * 5) {  //ošetření aby se tenhle paznecht nepouštěl dřív než má
-        FFF = 1;
-        rovne = 0;
-        rovne2 = 0;
-      }
+    if (LL < left_threshold && millis() - timerVlevo > shadeLeft / 3 && vlevo == 1) {  //když můžeš zatoč vlevo
+      stop();
+      delay(100);
+      zjistiCilR();  //obsahuje L90
+      timerVlevo = 0;
+      vlevo = 0;
+      LLL = 1;
     }
-    if (dir == 'R') {
-      Serial.print('R');
-      Serial.print('R');
-      Serial.print('-');
-      Serial.print(RR);
-      Serial.print('-');
-      if (RR < thresholdRight && vpravo == 0) {  //fake
-        timerVpravo = millis();
-        vpravo = 1;
-      }
-      if (RR < thresholdRight && millis() - timerVpravo > shadeRight / 3) {  //když můžeš vpravo a máš jet vpravo jeď vpravo
-        stop();
-        delay(100);
-        R_90R(LL, L, R, RR);
-        timerVpravo = 0;
-        vpravo = 0;
-        RRR = 1;
-      }
+  }
+  if (dir == 'F') {
+    if ((RR < thresholdRight || LL < left_threshold) && rovne == 0) {  //fake
+      timerRovne = millis();
+      rovne = 1;
     }
-
-    if ((dir == 'C') || (raceIndex >= way.length())) {
-      if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && finale_status == 0) {  //fake
-        timerCil = millis();
-        finale_status = 1;
-      }
-      if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > shade) {
-        dertermineFinish();
-        finale_status = 0;
-      }
+    if ((RR < thresholdRight && millis() - timerRovne > shadeRight / 3) || (LL < left_threshold && millis() - timerRovne > shadeLeft / 3)) {  //ví, že má jet rovně, takže musí zjistit, že projel přípojkou, jedno zda levou či pravou
+      rovne2 = 1;
     }
-
-    if (L < sensor_threshold && R < sensor_threshold) {  //sleduj čáru
-      if (LLL == 1) {
-        Serial.print(raceIndex);
-        Serial.print(':');
-        Serial.println('L');
-        runLED(green);
-        raceIndex++;
-      }
-      if (RRR == 1) {
-        Serial.print(raceIndex);
-        Serial.print(':');
-        Serial.println('R');
-        runLED(red);
-        raceIndex++;
-      }
-      if (FFF == 1) {
-        Serial.print(raceIndex);
-        Serial.print(':');
-        Serial.println('F');
-        runLED(indigo);
-        raceIndex++;
-      }
-      LLL = 0;
-      RRR = 0;
-      FFF = 0;
-
-      driveForward(raceSpeed); //190
+    if (rovne2 == 1 && millis() - timerRovne > shade * 5) {  //ošetření aby se tenhle paznecht nepouštěl dřív než má
+      FFF = 1;
+      rovne = 0;
+      rovne2 = 0;
     }
-    if (L < sensor_threshold && R > sensor_threshold) {  //pritoc doleva //x01x
-      levyMotorVpred(raceSpeed - dorovnavaciKonstanta);
-      pravyMotorVpred(raceSpeed + dorovnavaciKonstanta);
+  }
+  if (dir == 'R') {
+    Serial.print('R');
+    Serial.print('R');
+    Serial.print('-');
+    Serial.print(RR);
+    Serial.print('-');
+    if (RR < thresholdRight && vpravo == 0) {  //fake
+      timerVpravo = millis();
+      vpravo = 1;
     }
-    if (L > sensor_threshold && R < sensor_threshold) {  //pritoc doprava //x10x
-      levyMotorVpred(raceSpeed + dorovnavaciKonstanta);
-      pravyMotorVpred(raceSpeed - dorovnavaciKonstanta);
-    }
-    if (LL < left_threshold && L > sensor_threshold && R > sensor_threshold && RR > thresholdRight) {  //na care je pouze LL -> hodně přitoč doleva
-      levyMotorVzad(255);
-      pravyMotorVpred(raceSpeed + dorovnavaciKonstanta);
-    }
-    if (LL > left_threshold && L > sensor_threshold && R > sensor_threshold && RR < thresholdRight) {  //na care je pouze RR -> hodně přitoč doprava
-      levyMotorVpred(255);
-      pravyMotorVzad(raceSpeed - 2 * dorovnavaciKonstanta);
+    if (RR < thresholdRight && millis() - timerVpravo > shadeRight / 3) {  //když můžeš vpravo a máš jet vpravo jeď vpravo
+      stop();
+      delay(100);
+      R_90R(LL, L, R, RR);
+      timerVpravo = 0;
+      vpravo = 0;
+      RRR = 1;
     }
   }
 
-  //============================================================
-  //čištění fejkStacku nebo jak to nazvat xd - na konci loopu
+  if ((dir == 'C') || (raceIndex >= way.length())) {
+    if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && finale_status == 0) {  //fake
+      timerCil = millis();
+      finale_status = 1;
+    }
+    if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && millis() - timerCil > shade) {
+      dertermineFinish();
+      finale_status = 0;
+    }
+  }
+
+  if (L < sensor_threshold && R < sensor_threshold) {  //sleduj čáru
+    if (LLL == 1) {
+      Serial.print(raceIndex);
+      Serial.print(':');
+      Serial.println('L');
+      runLED(green);
+      raceIndex++;
+    }
+    if (RRR == 1) {
+      Serial.print(raceIndex);
+      Serial.print(':');
+      Serial.println('R');
+      runLED(red);
+      raceIndex++;
+    }
+    if (FFF == 1) {
+      Serial.print(raceIndex);
+      Serial.print(':');
+      Serial.println('F');
+      runLED(indigo);
+      raceIndex++;
+    }
+    LLL = 0;
+    RRR = 0;
+    FFF = 0;
+
+    driveForward(raceSpeed); //190
+  }
+  if (L < sensor_threshold && R > sensor_threshold) {  //pritoc doleva //x01x
+    levyMotorVpred(raceSpeed - dorovnavaciKonstanta);
+    pravyMotorVpred(raceSpeed + dorovnavaciKonstanta);
+   }
+  if (L > sensor_threshold && R < sensor_threshold) {  //pritoc doprava //x10x
+    levyMotorVpred(raceSpeed + dorovnavaciKonstanta);
+    pravyMotorVpred(raceSpeed - dorovnavaciKonstanta);
+  }
+  if (LL < left_threshold && L > sensor_threshold && R > sensor_threshold && RR > thresholdRight) {  //na care je pouze LL -> hodně přitoč doleva
+    levyMotorVzad(255);
+    pravyMotorVpred(raceSpeed + dorovnavaciKonstanta);
+  }
+  if (LL > left_threshold && L > sensor_threshold && R > sensor_threshold && RR < thresholdRight) {  //na care je pouze RR -> hodně přitoč doprava
+    levyMotorVpred(255);
+    pravyMotorVzad(raceSpeed - 2 * dorovnavaciKonstanta);
+  }
+}
+
+void cleaning(){
   if (millis() - timerVlevo > shade + 2) {
     timerVlevo = 0;
     vlevo = 0;
@@ -496,28 +509,18 @@ void stop() {
 
 void L90(int LL, int L, int R, int RR) {
   driveLeft(150); //150
-  unsigned long pockej = millis();
-  while (millis() - pockej < 250) {//delay
-  }
+  delay(250); //while
+  
   while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
   }
   if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
-      RGBLineFollower.loop();
-      LL = RGBLineFollower.getADCValueRGB1();
-      L = RGBLineFollower.getADCValueRGB2();
-      R = RGBLineFollower.getADCValueRGB3();
-      RR = RGBLineFollower.getADCValueRGB4();
+      int* RGBVals = updataRGBLineFollower();
+      LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     }
   }
 
@@ -555,24 +558,15 @@ void R_90(int LL, int L, int R, int RR) {
   }
 
   while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {  //toč dokud nenarazíš na čáru
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
   }
   if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
-      RGBLineFollower.loop();
-      LL = RGBLineFollower.getADCValueRGB1();
-      L = RGBLineFollower.getADCValueRGB2();
-      R = RGBLineFollower.getADCValueRGB3();
-      RR = RGBLineFollower.getADCValueRGB4();
+      int* RGBVals = updataRGBLineFollower();
+      LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     }
   }
   driveForward(80);
@@ -603,11 +597,8 @@ void dertermineFinish() {
   while (millis() - wait_time < 100) {
     //misto delaye
   }
-  RGBLineFollower.loop();
-  int LL = RGBLineFollower.getADCValueRGB1();
-  int L = RGBLineFollower.getADCValueRGB2();
-  int R = RGBLineFollower.getADCValueRGB3();
-  int RR = RGBLineFollower.getADCValueRGB4();
+  int* RGBVals = updataRGBLineFollower();
+  int  LL = RGBVals[0]; int L = RGBVals[1]; int R = RGBVals[2]; int RR = RGBVals[3]; delete[] RGBVals;
   if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
     runLED(yellow);
     findShortest();
@@ -630,11 +621,8 @@ void dertermineFinish() {
     runLED(aquamarine);
     return;  //vrátí se do loopu
   } else {
-    RGBLineFollower.loop();
-    int LL = RGBLineFollower.getADCValueRGB1();
-    int L = RGBLineFollower.getADCValueRGB2();
-    int R = RGBLineFollower.getADCValueRGB3();
-    int RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    int  LL = RGBVals[0]; int L = RGBVals[1]; int R = RGBVals[2]; int RR = RGBVals[3]; delete[] RGBVals;
     if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
       runLED(yellow);
       findShortest();
@@ -744,24 +732,15 @@ void L90R(int LL, int L, int R, int RR) {
     //misto delaye
   }
   while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
   }
   if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
-      RGBLineFollower.loop();
-      LL = RGBLineFollower.getADCValueRGB1();
-      L = RGBLineFollower.getADCValueRGB2();
-      R = RGBLineFollower.getADCValueRGB3();
-      RR = RGBLineFollower.getADCValueRGB4();
+      int* RGBVals = updataRGBLineFollower();
+      LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     }
   }
 
@@ -795,24 +774,15 @@ void R_90R(int LL, int L, int R, int RR) {
   }
 
   while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {  //toč dokud nenarazíš na čáru
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
   }
   if (LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight) {
-    RGBLineFollower.loop();
-    LL = RGBLineFollower.getADCValueRGB1();
-    L = RGBLineFollower.getADCValueRGB2();
-    R = RGBLineFollower.getADCValueRGB3();
-    RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     while (!(LL > left_threshold && L < sensor_threshold && R < sensor_threshold && RR > thresholdRight)) {
-      RGBLineFollower.loop();
-      LL = RGBLineFollower.getADCValueRGB1();
-      L = RGBLineFollower.getADCValueRGB2();
-      R = RGBLineFollower.getADCValueRGB3();
-      RR = RGBLineFollower.getADCValueRGB4();
+      int* RGBVals = updataRGBLineFollower();
+      LL = RGBVals[0]; L = RGBVals[1]; R = RGBVals[2]; RR = RGBVals[3]; delete[] RGBVals;
     }
   }
   driveForward(80);
@@ -834,11 +804,8 @@ void zjistiCilR() {
   while (millis() - wait_time < 100) {
     //misto delaye
   }
-  RGBLineFollower.loop();
-  int LL = RGBLineFollower.getADCValueRGB1();
-  int L = RGBLineFollower.getADCValueRGB2();
-  int R = RGBLineFollower.getADCValueRGB3();
-  int RR = RGBLineFollower.getADCValueRGB4();
+  int* RGBVals = updataRGBLineFollower();
+  int LL = RGBVals[0]; int L = RGBVals[1]; int R = RGBVals[2]; int RR = RGBVals[3]; delete[] RGBVals;
   if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
     runLED(yellow);
     findShortest();
@@ -860,11 +827,8 @@ void zjistiCilR() {
     runLED(aquamarine);
     return;  //vrátí se do loopu
   } else {
-    RGBLineFollower.loop();
-    int LL = RGBLineFollower.getADCValueRGB1();
-    int L = RGBLineFollower.getADCValueRGB2();
-    int R = RGBLineFollower.getADCValueRGB3();
-    int RR = RGBLineFollower.getADCValueRGB4();
+    int* RGBVals = updataRGBLineFollower();
+    int LL = RGBVals[0]; int L = RGBVals[1]; int R = RGBVals[2]; int RR = RGBVals[3]; delete[] RGBVals;
     if (LL < left_threshold && L < sensor_threshold && R < sensor_threshold && RR < thresholdRight) {
       runLED(yellow);
       findShortest();
