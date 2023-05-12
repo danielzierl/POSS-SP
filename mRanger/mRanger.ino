@@ -198,8 +198,8 @@ int shadeLeft = 38;   //25 //20 //30
 int thresholdRight = 28;    //22 //24
 int shadeRight = 10;  //25 //20
 
-int raceSpeed = 190;            //190
-int dorovnavaciKonstanta = 40;  //40
+int raceSpeed = 175;            //190
+int dorovnavaciKonstanta = 50;  //40
 ////////////////////
 
 
@@ -220,6 +220,21 @@ int* updataRGBLineFollower() {
   return RGBVals;
 }
 
+void crossFirstCrossing(){
+  if (first_crossing_state == 0) {
+    levyMotorVpred(110);   //80 víc ne
+    pravyMotorVpred(112);  //80
+    if (race == 0){
+      LLL = 0;
+      dir = way.charAt(raceStrIndex);
+      delay(800);
+    } else {
+      delay(1000);
+    }
+    first_crossing_state = 1;
+  }
+}
+
 void loop() {
   LED++;
   if (LED > 2000) {
@@ -230,12 +245,8 @@ void loop() {
   int LL = RGBVals[0]; int L = RGBVals[1]; int R = RGBVals[2]; int RR = RGBVals[3]; delete[] RGBVals;
 
   if (race == 0) {
-    if (first_crossing_state == 0) {
-      levyMotorVpred(110);   //80 víc ne
-      pravyMotorVpred(112);  //80
-      delay(1000);
-      first_crossing_state = 1;
-    }
+
+    crossFirstCrossing();
 
     if (LL < sensor_threshold && L < sensor_threshold && R < sensor_threshold && RR < sensor_threshold && finale_status == 0 ) {
       timerCil = millis();
@@ -348,14 +359,9 @@ void finalRace(int LL, int L, int R, int RR){
     LED = 0;
     return;
   }
-  if (first_crossing_state == 0) {
-    LLL = 0;
-    first_crossing_state = 1;
-    dir = way.charAt(raceStrIndex);
-    levyMotorVpred(110);   //80 víc ne
-    pravyMotorVpred(112);  //80
-    delay(900);
-  }
+
+  crossFirstCrossing();
+
   dir = way.charAt(raceStrIndex);
   Serial.print(raceStrIndex);
   Serial.print(':');
